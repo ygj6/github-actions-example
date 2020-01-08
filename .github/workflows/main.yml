@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  push:
+    branches:
+    - master
+    tags:
+    - '*'
+
+jobs:
+  macos:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        pattern: [0, 1, 2, 3]
+    steps:
+      - uses: actions/checkout@v1
+      - name: install
+        run: |
+          brew install openssl
+      - name: build
+        run: |
+          mkdir build && cd build
+          cmake ..
+          cmake --build .
+          make test
+      - uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: buildlog
+          path: build
+
