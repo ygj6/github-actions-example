@@ -31,4 +31,22 @@ jobs:
         with:
           name: buildlog
           path: build
+  linux:
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        pattern: [0, 1, 2, 3]
+    steps:
+      - uses: actions/checkout@v1
+      - name: build
+        run: |
+          mkdir build && cd build
+          cmake ..
+          cmake --build .
+          make test
+      - uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: buildlog
+          path: build
 
