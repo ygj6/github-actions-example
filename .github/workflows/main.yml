@@ -29,7 +29,7 @@ jobs:
       - uses: actions/upload-artifact@v1
         if: failure()
         with:
-          name: buildlog
+          name: buildlog_${{runner.os}}_${{matrix.pattern}}
           path: build
   linux:
     runs-on: ubuntu-18.04
@@ -47,6 +47,6 @@ jobs:
       - uses: actions/upload-artifact@v1
         if: failure()
         with:
-          name: buildlog
+          name: buildlog_${{runner.os}}_${{matrix.pattern}}
           path: build
 
