@@ -1,0 +1,16 @@
+---
+os:
+  - osx
+osx_image: xcode10.1
+
+git:
+  quiet: true
+
+language: c
+compiler: gcc
+
+script:
+  - mkdir build && cd build
+  - cmake ..
+  - cmake --build .
+  - for i in {1..10}; do echo "Run $i"; make test || exit 1; done
