@@ -1,0 +1,50 @@
+name: doxygen
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  push:
+    branches:
+      - master
+
+jobs:
+  Doxygen:
+    runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v2.0.0
+
+    - name: Deploy Documentation
+      env:
+        EXAMPLE_DEPLOY_PRI: ${{ secrets.EXAMPLE_DEPLOY_PRI }}
+        COMMIT_ID: ${{ github.sha }}
+      run: |
+        mkdir -p ~/.ssh
+        echo "$EXAMPLE_DEPLOY_PRI" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan github.com >> ~/.ssh/known_hosts
+        user_name="${{ github.event.head_commit.author.name }}"
+        user_email="${{ github.event.head_commit.author.email }}"
+        short_commit_id="${COMMIT_ID:0:7}"
+        owner_name="${{ github.event.repository.owner.name }}"
+
+        mkdir html
+        cd html
+        date > index.html
+        echo "$COMMIT_ID" >> index.html
+
+        git init
+        git config --local user.name $user_name
+        git config --local user.email $user_email
+        git add -f .
+        git commit -m "Update documentation (libevent/libevent@$short_commit_id)"
+        git push -f git@github.com:$owner_name/doc master
+
+    - uses: actions/upload-artifact@v1
+      if: failure()
+      with:
+        name: doxygen-build
+        path: build
+
